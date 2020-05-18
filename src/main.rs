@@ -5,6 +5,9 @@ use sp_core::crypto::AccountId32;
 use sp_core::crypto::Ss58AddressFormat;
 use sp_core::crypto::Ss58Codec;
 use sp_core::Pair;
+use std::sync::mpsc;
+use std::sync::mpsc::{Receiver, Sender, TryRecvError};
+use std::thread;
 
 fn is_valid_ss58_char(c: char) -> bool {
     let ss58_chars = [
@@ -16,6 +19,7 @@ fn is_valid_ss58_char(c: char) -> bool {
     ss58_chars.contains(&c)
 }
 
+#[derive(Clone)]
 struct Matcher {
     addr_type: u8,
     startswith: String,
@@ -85,6 +89,29 @@ fn generate_wallet(addr_format: u8) -> Wallet {
     }
 }
 
+// Generate wallets and send matching wallets to `tx` until `kill_pill`
+// is received.
+fn generate_matching_wallet(
+    tx: Sender<Wallet>,
+    kill_pill: Receiver<()>,
+    matcher: Matcher,
+    addr_type: u8,
+) {
+    let mut wallet: Wallet;
+    loop {
+        wallet = generate_wallet(addr_type);
+        if matcher.match_(&wallet.address) {
+            tx.send(wallet).unwrap();
+        }
+        match kill_pill.try_recv() {
+            Ok(_) | Err(TryRecvError::Disconnected) => {
+                break;
+            }
+            Err(TryRecvError::Empty) => {}
+        }
+    }
+}
+
 fn main() {
     let matches = clap::App::new("dotvanity")
         .version("0.1.1")  // DO NOT EDIT THIS LINE MANUALLY
@@ -120,7 +147,23 @@ fn main() {
                           https://github.com/paritytech/substrate/wiki/External-Address-Format-(SS58)#address-type")
                 .default_value("0"),  // Polkadot mainnet type
         )
+        .arg(
+            clap::Arg::with_name("cpus")
+                .long("cpus")
+                .value_name("INT")
+                .help("Amount of CPU cores to use")
+                .default_value("1"),
+        )
         .get_matches();
+
+    let cpu_count_str = matches.value_of("cpus").unwrap();
+    let cpu_count: u8 = match cpu_count_str.parse() {
+        Ok(cpu_count) => cpu_count,
+        Err(_error) => {
+            eprintln!("Error: CPU count is not an 8-bit unsigned integer");
+            std::process::exit(1);
+        }
+    };
 
     let addr_type_str = matches.value_of("address type").unwrap();
     let addr_type: u8 = match addr_type_str.parse() {
@@ -142,16 +185,32 @@ fn main() {
     };
     matcher.validate();
 
-    let mut wallet: Wallet;
-    loop {
-        wallet = generate_wallet(addr_type);
-        if matcher.match_(&wallet.address) {
-            break;
-        }
+    let (tx, rx) = mpsc::channel();
+    let mut children = Vec::new();
+    let mut kill_pills = Vec::new();
+    for _child_index in 0..cpu_count {
+        let thread_tx = tx.clone();
+        let thread_matcher = matcher.clone();
+        let (kill_pill_tx, kill_pill_rx) = mpsc::channel();
+        let child = thread::spawn(move || {
+            generate_matching_wallet(thread_tx, kill_pill_rx, thread_matcher, addr_type)
+        });
+        kill_pills.push(kill_pill_tx);
+        children.push(child);
     }
 
-    println!("Mnemonic phrase: {}", wallet.mnemonic_phrase);
-    println!("Private key: {}", wallet.private_key);
-    println!("Public key: {}", wallet.public_key);
-    println!("Address: {}", wallet.address);
+    let matching_wallet = rx.recv().unwrap();
+    println!(":::: Matching wallet found ::::");
+    println!("Mnemonic phrase: {}", matching_wallet.mnemonic_phrase);
+    println!("Private key:     {}", matching_wallet.private_key);
+    println!("Public key:      {}", matching_wallet.public_key);
+    println!("Address:         {}", matching_wallet.address);
+
+    // Tear down all child threads
+    for pill in kill_pills {
+        pill.send(()).unwrap();
+    }
+    for child in children {
+        child.join().unwrap();
+    }
 }
