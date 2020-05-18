@@ -84,7 +84,7 @@ fn generate_wallet(addr_format: u8) -> Wallet {
 
 fn main() {
     let matches = clap::App::new("dotvanity")
-        .version("0.1.0")
+        .version("0.1.0")  // DO NOT EDIT THIS LINE MANUALLY
         .author("Taneli Hukkinen <hukkinj1@users.noreply.github.com>")
         .about("Polkadot/Substrate vanity address generator")
         .arg(
