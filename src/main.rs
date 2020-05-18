@@ -1,10 +1,10 @@
 use clap;
 use data_encoding::HEXLOWER;
-use rand::rngs::OsRng;
-use schnorrkel::Keypair;
 use sp_core::crypto::AccountId32;
 use sp_core::crypto::Ss58AddressFormat;
 use sp_core::crypto::Ss58Codec;
+use sp_core::Pair;
+use bip39;
 
 fn is_valid_ss58_char(c: char) -> bool {
     let ss58_chars = [
@@ -60,12 +60,26 @@ impl Matcher {
     }
 }
 
-fn generate_wallet(addr_format: u8) -> (Keypair, String) {
-    let keypair: Keypair = Keypair::generate_with(OsRng);
-    let account_id = AccountId32::from(keypair.public.to_bytes());
-    let account_id_str =
-        account_id.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
-    (keypair, account_id_str)
+struct Wallet {
+    mnemonic_phrase: String,
+    private_key: String,
+    public_key: String,
+    address: String,
+}
+
+fn generate_wallet(addr_format: u8) -> Wallet {
+    let mnemonic = bip39::Mnemonic::new(bip39::MnemonicType::Words12, bip39::Language::English);
+    let phrase = mnemonic.phrase();
+    let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
+    let address_obj = AccountId32::from(pair.public());
+    let address_str =
+        address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+    Wallet{
+        mnemonic_phrase: phrase.to_string(),
+        private_key: HEXLOWER.encode(&secret),
+        public_key: pair.public().to_string(),
+        address: address_str,
+    }
 }
 
 fn main() {
@@ -125,18 +139,19 @@ fn main() {
     };
     matcher.validate();
 
-    let mut wallet: (Keypair, String);
+    let mut wallet: Wallet;
     loop {
         wallet = generate_wallet(addr_type);
-        if matcher.match_(&wallet.1) {
+        if matcher.match_(&wallet.address) {
             break;
         }
     }
 
-    println!("Private key: {}", HEXLOWER.encode(&wallet.0.secret.to_bytes()));
+    println!("Mnemonic phrase: {}", wallet.mnemonic_phrase);
+    println!("Private key: {}", wallet.private_key);
     println!(
         "Public key: {}",
-        HEXLOWER.encode(&wallet.0.public.to_bytes())
+        wallet.public_key
     );
-    println!("Address: {}", wallet.1);
+    println!("Address: {}", wallet.address);
 }

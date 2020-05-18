@@ -12,8 +12,7 @@ keywords = ["cli", "polkadot", "substrate"]
 categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 
 [dependencies]
-rand = "^0.7.3"
-schnorrkel = "^0.9.1"
 data-encoding = "^2.2.0"
 sp-core = "^2.0.0-alpha.8"
 clap = "^2.33.1"
+tiny-bip39 = "^0.7.0"

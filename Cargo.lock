@@ -271,9 +271,8 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "data-encoding",
- "rand",
- "schnorrkel",
  "sp-core",
+ "tiny-bip39",
 ]
 
 [[package]]
