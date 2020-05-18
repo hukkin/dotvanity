@@ -120,7 +120,7 @@ fn main() {
         }
     }
 
-    println!("Private key: {}", HEXLOWER.encode(&wallet.0.to_bytes()));
+    println!("Private key: {}", HEXLOWER.encode(&wallet.0.secret.to_bytes()));
     println!(
         "Public key: {}",
         HEXLOWER.encode(&wallet.0.public.to_bytes())
