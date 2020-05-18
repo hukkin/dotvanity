@@ -1,10 +1,10 @@
+use bip39;
 use clap;
 use data_encoding::HEXLOWER;
 use sp_core::crypto::AccountId32;
 use sp_core::crypto::Ss58AddressFormat;
 use sp_core::crypto::Ss58Codec;
 use sp_core::Pair;
-use bip39;
 
 fn is_valid_ss58_char(c: char) -> bool {
     let ss58_chars = [
@@ -44,7 +44,9 @@ impl Matcher {
         if !self.startswith.is_empty() {
             let first_char = self.startswith.chars().next().unwrap();
             if self.addr_type == 0 && first_char != '1' {
-                eprintln!("Error: Polkadot mainnet address must start with '1'. Adjust --startswith");
+                eprintln!(
+                    "Error: Polkadot mainnet address must start with '1'. Adjust --startswith"
+                );
                 std::process::exit(1);
             }
             let kusama_addr_first_chars = ['C', 'D', 'F', 'G', 'H', 'J'];
@@ -53,7 +55,9 @@ impl Matcher {
                 std::process::exit(1);
             }
             if self.addr_type == 42 && first_char != '5' {
-                eprintln!("Error: Generic Substrate address must start with '5'. Adjust --startswith");
+                eprintln!(
+                    "Error: Generic Substrate address must start with '5'. Adjust --startswith"
+                );
                 std::process::exit(1);
             }
         }
@@ -72,9 +76,8 @@ fn generate_wallet(addr_format: u8) -> Wallet {
     let phrase = mnemonic.phrase();
     let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
     let address_obj = AccountId32::from(pair.public());
-    let address_str =
-        address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
-    Wallet{
+    let address_str = address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+    Wallet {
         mnemonic_phrase: phrase.to_string(),
         private_key: HEXLOWER.encode(&secret),
         public_key: pair.public().to_string(),
@@ -149,9 +152,6 @@ fn main() {
 
     println!("Mnemonic phrase: {}", wallet.mnemonic_phrase);
     println!("Private key: {}", wallet.private_key);
-    println!(
-        "Public key: {}",
-        wallet.public_key
-    );
+    println!("Public key: {}", wallet.public_key);
     println!("Address: {}", wallet.address);
 }
