@@ -1,0 +1,12 @@
+[package]
+name = "dotvanity"
+version = "0.1.0"
+authors = ["Taneli Hukkinen <hukkinj1@users.noreply.github.com>"]
+edition = "2018"
+
+[dependencies]
+rand = "^0.7.3"
+schnorrkel = "^0.9.1"
+data-encoding = "^2.2.0"
+sp-core = "^2.0.0-alpha.8"
+clap = "^2.33.1"
