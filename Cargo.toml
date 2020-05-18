@@ -2,7 +2,14 @@
 name = "dotvanity"
 version = "0.1.0"
 authors = ["Taneli Hukkinen <hukkinj1@users.noreply.github.com>"]
+license = "MIT"
 edition = "2018"
+description = "Polkadot/Substrate vanity address generator"
+readme = "README.md"
+homepage = "https://github.com/hukkinj1/dotvanity"
+repository = "https://github.com/hukkinj1/dotvanity"
+keywords = ["cli", "polkadot", "substrate"]
+categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 
 [dependencies]
 rand = "^0.7.3"
