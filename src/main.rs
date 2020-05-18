@@ -40,9 +40,22 @@ impl Matcher {
             std::process::exit(1);
         }
 
-        if self.addr_type == 0 && !self.startswith.starts_with("1") {
-            eprintln!("Error: Polkadot mainnet address must start with \"1\". Adjust --startswith");
-            std::process::exit(1);
+        // Validate first char of --startswith string for some known cases
+        if !self.startswith.is_empty() {
+            let first_char = self.startswith.chars().next().unwrap();
+            if self.addr_type == 0 && first_char != '1' {
+                eprintln!("Error: Polkadot mainnet address must start with '1'. Adjust --startswith");
+                std::process::exit(1);
+            }
+            let kusama_addr_first_chars = ['C', 'D', 'F', 'G', 'H', 'J'];
+            if self.addr_type == 2 && !kusama_addr_first_chars.contains(&first_char) {
+                eprintln!("Error: Kusama address must start with one of ['C', 'D', 'F', 'G', 'H', 'J']. Adjust --startswith");
+                std::process::exit(1);
+            }
+            if self.addr_type == 42 && first_char != '5' {
+                eprintln!("Error: Generic Substrate address must start with '5'. Adjust --startswith");
+                std::process::exit(1);
+            }
         }
     }
 }
