@@ -1,10 +1,11 @@
+[![Crate](https://img.shields.io/crates/v/dotvanity.svg)](https://crates.io/crates/dotvanity)
 [![Build Status](https://travis-ci.com/hukkinj1/dotvanity.svg?branch=master)](https://travis-ci.com/hukkinj1/dotvanity)
 # dotvanity
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
 > Version 0.1.2
 
-> CLI tool for generating Substrate (or Polkadot) vanity addresses
+> CLI tool for generating [Substrate](https://substrate.dev/) (or [Polkadot](https://polkadot.network/)) vanity addresses
 
 
 ## Features

@@ -76,7 +76,7 @@ struct Wallet {
 }
 
 impl Wallet {
-    pub fn new(addr_format: u8) -> Wallet {
+    fn new(addr_format: u8) -> Wallet {
         let mnemonic = bip39::Mnemonic::new(bip39::MnemonicType::Words12, bip39::Language::English);
         let phrase = mnemonic.phrase();
         let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
