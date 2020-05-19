@@ -76,19 +76,46 @@ struct Wallet {
 }
 
 impl Wallet {
-    fn new(addr_format: u8) -> Wallet {
-        let mnemonic = bip39::Mnemonic::new(bip39::MnemonicType::Words12, bip39::Language::English);
-        let phrase = mnemonic.phrase();
-        let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
-        let address_obj = AccountId32::from(pair.public());
-        let address_str =
-            address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+    fn new(addr_format: u8, with_phrase:bool) -> Wallet {
+        if with_phrase {
+            return Wallet::with_phrase(addr_format)
+        }
+        Wallet::without_phrase(addr_format)
+    }
+
+    fn with_phrase(addr_format: u8) -> Wallet {
+        let (pair, phrase, secret) = sp_core::sr25519::Pair::generate_with_phrase(None);
+        let address = AccountId32::from(pair.public()).to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
         Wallet {
-            mnemonic_phrase: phrase.to_string(),
+            mnemonic_phrase: phrase,
             private_key: secret,
             public_key: pair.public().to_string(),
-            address: address_str,
+            address,
         }
+    }
+
+    fn without_phrase(addr_format: u8) -> Wallet {
+        let phrase = String::new();
+        let (pair, secret) = sp_core::sr25519::Pair::generate();
+        let address = AccountId32::from(pair.public()).to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+        Wallet {
+            mnemonic_phrase: phrase,
+            private_key: secret,
+            public_key: pair.public().to_string(),
+            address,
+        }
+    }
+
+    fn pretty_print(&self) {
+        if !self.mnemonic_phrase.is_empty() {
+            println!("Mnemonic phrase: {}", self.mnemonic_phrase);
+        }
+        println!(
+            "Private key:     {}",
+            HEXLOWER.encode(&self.private_key)
+        );
+        println!("Public key:      {}", self.public_key);
+        println!("Address:         {}", self.address);
     }
 }
 
@@ -100,16 +127,17 @@ fn generate_matching_wallet(
     kill_pill: Receiver<()>,
     matcher: Matcher,
     addr_type: u8,
+    with_phrase: bool,
 ) {
     let mut unreported_attempts: u64 = 0;
     let mut wallet: Wallet;
     loop {
-        wallet = Wallet::new(addr_type);
+        wallet = Wallet::new(addr_type, with_phrase);
         if matcher.match_(&wallet.address) {
             tx.send(wallet).unwrap();
         }
 
-        let report_threshold = 50; // Report attempt count to main thread after this many attempts
+        let report_threshold = 1000; // Report attempt count to main thread after this many attempts
         unreported_attempts += 1;
         if unreported_attempts >= report_threshold {
             attempt_count_tx.send(unreported_attempts).unwrap();
@@ -181,7 +209,19 @@ fn main() {
                 .long("verbose")
                 .help("Verbose output")
         )
+        .arg(
+            clap::Arg::with_name("mnemonic")
+                .short("m")
+                .long("mnemonic")
+                .help("Generate a mnemonic phrase for wallets")
+        )
         .get_matches();
+
+    let mnemonic = match matches.occurrences_of("mnemonic") {
+        0 => false,
+        1 => true,
+        _ => panic!("got more than one mnemonic flag"),
+    };
 
     let verbose = match matches.occurrences_of("verbose") {
         0 => false,
@@ -243,6 +283,7 @@ fn main() {
                 kill_pill_rx,
                 thread_matcher,
                 addr_type,
+                mnemonic
             )
         });
         kill_pills.push(kill_pill_tx);
@@ -257,13 +298,7 @@ fn main() {
             Ok(matching_wallet) => {
                 matches_found += 1;
                 println!(":::: Matching wallet found ::::");
-                println!("Mnemonic phrase: {}", matching_wallet.mnemonic_phrase);
-                println!(
-                    "Private key:     {}",
-                    HEXLOWER.encode(&matching_wallet.private_key)
-                );
-                println!("Public key:      {}", matching_wallet.public_key);
-                println!("Address:         {}", matching_wallet.address);
+                matching_wallet.pretty_print();
             }
             Err(RecvTimeoutError::Disconnected) => panic!("wallet tx disconnected"),
             Err(RecvTimeoutError::Timeout) => {}

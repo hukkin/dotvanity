@@ -11,7 +11,7 @@
 ## Features
 * Generate SS58 encoded vanity addresses
 * Support address types 0 to 127 (includes Polkadot, Kusama, generic Substrate etc.). Defaults to Polkadot mainnet (address type 0).
-* Use all CPU cores
+* Specify number of CPU cores used
 * Specify a substring that the addresses must
     * start with
     * end with
@@ -46,6 +46,11 @@ dotvanity --type 2
 Generate 5 addresses (the default is 1)
 ```bash
 dotvanity -n 5
+```
+
+Output a BIP39 mnemonic phrase for found addresses. **NOTE: This is resource intensive and makes finding an address a LOT slower.**
+```bash
+dotvanity --mnemonic
 ```
 
 Combine flags introduced above

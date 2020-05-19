@@ -272,7 +272,6 @@ dependencies = [
  "clap",
  "data-encoding",
  "sp-core",
- "tiny-bip39",
 ]
 
 [[package]]
