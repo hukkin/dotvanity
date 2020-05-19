@@ -75,17 +75,20 @@ struct Wallet {
     address: String,
 }
 
-fn generate_wallet(addr_format: u8) -> Wallet {
-    let mnemonic = bip39::Mnemonic::new(bip39::MnemonicType::Words12, bip39::Language::English);
-    let phrase = mnemonic.phrase();
-    let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
-    let address_obj = AccountId32::from(pair.public());
-    let address_str = address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
-    Wallet {
-        mnemonic_phrase: phrase.to_string(),
-        private_key: secret,
-        public_key: pair.public().to_string(),
-        address: address_str,
+impl Wallet {
+    pub fn new(addr_format: u8) -> Wallet {
+        let mnemonic = bip39::Mnemonic::new(bip39::MnemonicType::Words12, bip39::Language::English);
+        let phrase = mnemonic.phrase();
+        let (pair, secret) = sp_core::sr25519::Pair::from_phrase(phrase, None).unwrap();
+        let address_obj = AccountId32::from(pair.public());
+        let address_str =
+            address_obj.to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+        Wallet {
+            mnemonic_phrase: phrase.to_string(),
+            private_key: secret,
+            public_key: pair.public().to_string(),
+            address: address_str,
+        }
     }
 }
 
@@ -101,7 +104,7 @@ fn generate_matching_wallet(
     let mut unreported_attempts: u64 = 0;
     let mut wallet: Wallet;
     loop {
-        wallet = generate_wallet(addr_type);
+        wallet = Wallet::new(addr_type);
         if matcher.match_(&wallet.address) {
             tx.send(wallet).unwrap();
         }
