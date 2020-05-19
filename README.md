@@ -15,6 +15,7 @@
 * Specify a substring that the addresses must
     * start with
     * end with
+    * contain
 * Output a corresponding BIP39 mnemonic phrase along with the address
 
 ## Installing
@@ -31,6 +32,11 @@ dotvanity --startswith 11
 Find an address that ends with "zz" (e.g. 1X9fUsYxfJ3qJvGu9wdZNhaKP37Y9Vg1YgsMKgkrDox9Pzz)
 ```bash
 dotvanity --endswith zz
+```
+
+Find an address containing the substring "XXXXX" (e.g. 1R6DVtPBh5ZfNHPFoHT4GVUuLwzcbZaVvD4EFXXXXXZMBc3)
+```bash
+dotvanity --contains XXXXX
 ```
 
 Use 5 CPU threads. The default is 1.

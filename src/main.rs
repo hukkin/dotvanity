@@ -24,10 +24,14 @@ struct Matcher {
     addr_type: u8,
     startswith: String,
     endswith: String,
+    contains: String,
 }
 
 impl Matcher {
     fn match_(&self, candidate: &str) -> bool {
+        if !candidate.contains(&self.contains) {
+            return false;
+        }
         if !candidate.starts_with(&self.startswith) {
             return false;
         }
@@ -39,6 +43,7 @@ impl Matcher {
     fn validate(&self) {
         if !self.startswith.chars().all(is_valid_ss58_char)
             || !self.endswith.chars().all(is_valid_ss58_char)
+            || !self.contains.chars().all(is_valid_ss58_char)
         {
             eprintln!("Error: A provided matcher contains SS58 incompatible characters");
             std::process::exit(1);
@@ -76,16 +81,17 @@ struct Wallet {
 }
 
 impl Wallet {
-    fn new(addr_format: u8, with_phrase:bool) -> Wallet {
+    fn new(addr_format: u8, with_phrase: bool) -> Wallet {
         if with_phrase {
-            return Wallet::with_phrase(addr_format)
+            return Wallet::with_phrase(addr_format);
         }
         Wallet::without_phrase(addr_format)
     }
 
     fn with_phrase(addr_format: u8) -> Wallet {
         let (pair, phrase, secret) = sp_core::sr25519::Pair::generate_with_phrase(None);
-        let address = AccountId32::from(pair.public()).to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+        let address = AccountId32::from(pair.public())
+            .to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
         Wallet {
             mnemonic_phrase: phrase,
             private_key: secret,
@@ -97,7 +103,8 @@ impl Wallet {
     fn without_phrase(addr_format: u8) -> Wallet {
         let phrase = String::new();
         let (pair, secret) = sp_core::sr25519::Pair::generate();
-        let address = AccountId32::from(pair.public()).to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
+        let address = AccountId32::from(pair.public())
+            .to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
         Wallet {
             mnemonic_phrase: phrase,
             private_key: secret,
@@ -110,10 +117,7 @@ impl Wallet {
         if !self.mnemonic_phrase.is_empty() {
             println!("Mnemonic phrase: {}", self.mnemonic_phrase);
         }
-        println!(
-            "Private key:     {}",
-            HEXLOWER.encode(&self.private_key)
-        );
+        println!("Private key:     {}", HEXLOWER.encode(&self.private_key));
         println!("Public key:      {}", self.public_key);
         println!("Address:         {}", self.address);
     }
@@ -158,6 +162,14 @@ fn main() {
         .version("0.1.2")  // DO NOT EDIT THIS LINE MANUALLY
         .author("Taneli Hukkinen <hukkinj1@users.noreply.github.com>")
         .about("Polkadot/Substrate vanity address generator")
+        .arg(
+            clap::Arg::with_name("contains")
+                .short("c")
+                .long("contains")
+                .value_name("SUBSTRING")
+                .help("A string that the address must contain")
+                .default_value(""),
+        )
         .arg(
             clap::Arg::with_name("startswith")
                 .short("s")
@@ -264,6 +276,7 @@ fn main() {
         addr_type,
         startswith: String::from(matches.value_of("startswith").unwrap()),
         endswith: String::from(matches.value_of("endswith").unwrap()),
+        contains: String::from(matches.value_of("contains").unwrap()),
     };
     matcher.validate();
 
@@ -283,7 +296,7 @@ fn main() {
                 kill_pill_rx,
                 thread_matcher,
                 addr_type,
-                mnemonic
+                mnemonic,
             )
         });
         kill_pills.push(kill_pill_tx);
