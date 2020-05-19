@@ -37,6 +37,11 @@ Alter the address type. Create a Kusama address (type 2) instead of Polkadot.
 ./dotvanity --type 2
 ```
 
+Generate 5 addresses (the default is 1)
+```bash
+./dotvanity -n 5
+```
+
 Combine flags introduced above
 ```bash
 ./dotvanity --startswith 11 --endswith QQ --cpus 3
