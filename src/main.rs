@@ -1,5 +1,3 @@
-use bip39;
-use clap;
 use data_encoding::HEXLOWER;
 use sp_core::crypto::AccountId32;
 use sp_core::crypto::Ss58AddressFormat;
@@ -29,7 +27,7 @@ struct Matcher {
 }
 
 impl Matcher {
-    fn match_(&self, candidate: &String) -> bool {
+    fn match_(&self, candidate: &str) -> bool {
         if !candidate.starts_with(&self.startswith) {
             return false;
         }
@@ -220,7 +218,7 @@ fn main() {
     }
 
     let matcher = Matcher {
-        addr_type: addr_type,
+        addr_type,
         startswith: String::from(matches.value_of("startswith").unwrap()),
         endswith: String::from(matches.value_of("endswith").unwrap()),
     };
@@ -274,17 +272,14 @@ fn main() {
         }
 
         if verbose {
-            match start_time.elapsed() {
-                Ok(elapsed) => {
-                    let elapsed_secs = elapsed.as_secs();
-                    if elapsed_secs != 0 {
-                        println!(
-                            "Pace: {} attempts per second",
-                            total_attempts / elapsed.as_secs()
-                        )
-                    }
+            if let Ok(elapsed) = start_time.elapsed() {
+                let elapsed_secs = elapsed.as_secs();
+                if elapsed_secs != 0 {
+                    println!(
+                        "Pace: {} attempts per second",
+                        total_attempts / elapsed.as_secs()
+                    )
                 }
-                Err(_) => {}
             }
         }
     }
