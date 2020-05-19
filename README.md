@@ -16,33 +16,38 @@
     * end with
 * Output a corresponding BIP39 mnemonic phrase along with the address
 
+## Installing
+```bash
+cargo install dotvanity
+```
+
 ## Usage examples
 Find an address that starts with "11" (e.g. 11Tvp5FaD2Vf69BS5tgGJio8KBPd6PUSvrn9nyDTCLWnQWw)
 ```bash
-./dotvanity --startswith 11
+dotvanity --startswith 11
 ```
 
 Find an address that ends with "zz" (e.g. 1X9fUsYxfJ3qJvGu9wdZNhaKP37Y9Vg1YgsMKgkrDox9Pzz)
 ```bash
-./dotvanity --endswith zz
+dotvanity --endswith zz
 ```
 
 Use 5 CPU threads. The default is 1.
 ```bash
-./dotvanity --cpus 5
+dotvanity --cpus 5
 ```
 
 Alter the address type. Create a Kusama address (type 2) instead of Polkadot.
 ```bash
-./dotvanity --type 2
+dotvanity --type 2
 ```
 
 Generate 5 addresses (the default is 1)
 ```bash
-./dotvanity -n 5
+dotvanity -n 5
 ```
 
 Combine flags introduced above
 ```bash
-./dotvanity --startswith 11 --endswith QQ --cpus 3
+dotvanity --startswith 11 --endswith QQ --cpus 3
 ```
