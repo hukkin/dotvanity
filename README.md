@@ -17,8 +17,12 @@
     * end with
     * contain
 * Output a corresponding BIP39 mnemonic phrase along with the address
+* Binaries built for Linux, macOS and Windows
 
 ## Installing
+Download the latest binary release from the [_Releases_](https://github.com/hukkinj1/dotvanity/releases) page.
+
+Alternatively, if you have `cargo` installed, build and install by running
 ```bash
 cargo install dotvanity
 ```
