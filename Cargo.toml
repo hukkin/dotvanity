@@ -1,6 +1,6 @@
 [package]
 name = "dotvanity"
-version = "0.2.3"  # DO NOT EDIT THIS LINE MANUALLY
+version = "0.2.4"  # DO NOT EDIT THIS LINE MANUALLY
 authors = ["Taneli Hukkinen <hukkinj1@users.noreply.github.com>"]
 license = "MIT"
 edition = "2018"
