@@ -1,9 +1,114 @@
+### Simple travis conf before https://github.com/japaric/trust was added
+#language: rust
+#before_script:
+#  - rustup component add rustfmt
+#  - rustup component add clippy
+#script:
+#  - cargo build
+#  - cargo test
+#  - cargo fmt -- --check
+#  - cargo clippy
+
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: trusty
 language: rust
-before_script:
-  - rustup component add rustfmt
-  - rustup component add clippy
+services: docker
+sudo: required
+
+# Rust builds on stable by default, this can be
+# overridden on a case by case basis down below.
+
+env:
+  global:
+    - CRATE_NAME=dotvanity
+
+matrix:
+  # These are all the build jobs. Adjust as necessary. Comment out what you
+  # don't need
+  include:
+    # Android
+    #- env: TARGET=aarch64-linux-android DISABLE_TESTS=1
+    #- env: TARGET=arm-linux-androideabi DISABLE_TESTS=1
+    #- env: TARGET=armv7-linux-androideabi DISABLE_TESTS=1
+    #- env: TARGET=i686-linux-android DISABLE_TESTS=1
+    #- env: TARGET=x86_64-linux-android DISABLE_TESTS=1
+
+    # iOS
+    #- env: TARGET=aarch64-apple-ios DISABLE_TESTS=1
+    #  os: osx
+    #- env: TARGET=armv7-apple-ios DISABLE_TESTS=1
+    #  os: osx
+    #- env: TARGET=armv7s-apple-ios DISABLE_TESTS=1
+    #  os: osx
+    #- env: TARGET=x86_64-apple-ios DISABLE_TESTS=1
+    #  os: osx
+
+    # Linux
+    - env: TARGET=x86_64-unknown-linux-gnu
+
+    # OSX
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+    # *BSD
+    #- env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+    #- env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+
+    # Windows
+    - env: TARGET=x86_64-pc-windows-gnu
+
+    # Testing other channels
+    - env: TARGET=x86_64-unknown-linux-gnu
+      rust: nightly
+
+before_install:
+  - set -e
+  - rustup self update
+
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
+
 script:
-  - cargo build
-  - cargo test
-  - cargo fmt -- --check
-  - cargo clippy
+  - bash ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis login --pro && travis encrypt --pro 0123456789012345678901234567890123456789`
+  # - Paste the output down here
+  api_key:
+    secure: "AfbArLP5XmmUqB665kHpECNF5lXUq4q6IHGfzNaXFD6s6elKrnGFMlAJKbiPvbORCKbKiR6/WHW3/a2wtHYbICmMJoNZfqQAYuxWtYU808Ij0BoaiAaQQfIbMKpytcITqZzXROaHlfLHsicRZovQaOnopl8djysSjBx3YrVo6wN/CkeaBMBfKrPGsnZnzszmLLehQfKLlAxbsz7itnrpW1cNXdZXdK3K3xDXkiLHPQ0m4Y3Xc2dMuNiYNypQ1u3n82nb1bW398RPGGPx4WNi6a0Q7uyCILGAxhfYrCyLvqbeZISFiCY+vy2eYrm6IYs388yD8BDkumH6756A610k76uHtloxsfcBu6tjIsbZU0WOt7uapsAzQmBQTBeuy90proCwVkXdOu+s04GoaCCuMJjtDl2bcY2oWlJgIwtltbs/imYUY/hg9thHw+IzV75BhUomBIjNMGaiaqZYlT6vt+llsm/L+r9FW2e3KljnBXp0O0bdd4YST0lEYblxM64bbU+Pa28OMUCR7CNlA0Dx9ZMCe6EE/MIqAJkx+EyP8Rv5ukIOJ4xq+mAUhymqW855hY+u7PAjXg+n0PpsyCriHY6Y7mgr099PLPMhRH4rG604fUU8bxO7/64omfbCZUNarT8liAtsZYhfL8RY8yZceLk01YYRswhCMjl2C08DGSg="
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    # Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
+    condition: $TRAVIS_RUST_VERSION = stable
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  email:
+    on_success: never
