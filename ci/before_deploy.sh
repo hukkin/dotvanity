@@ -18,10 +18,10 @@ main() {
     test -f Cargo.lock || cargo generate-lockfile
 
     # Update this to build the artifacts that matter to you
-    cross rustc --bin dotvanity --target $TARGET --release -- -C lto
+    cross rustc --bin $CRATE_NAME --target $TARGET --release -- -C lto
 
     # Update this to package the right artifacts
-    cp target/$TARGET/release/dotvanity $stage/
+    cp target/$TARGET/release/$CRATE_NAME $stage/
 
     cd $stage
     tar czf $src/$CRATE_NAME-$TRAVIS_TAG-$TARGET.tar.gz *
