@@ -16,6 +16,7 @@
     * start with
     * end with
     * contain
+* Set a required minimum amount of letters (a-z or A-Z) or digits (0-9) that the address must contain
 * Output a corresponding BIP39 mnemonic phrase along with the address
 * Binaries built for Linux, macOS and Windows
 

@@ -19,12 +19,34 @@ fn is_valid_ss58_char(c: char) -> bool {
     ss58_chars.contains(&c)
 }
 
+fn count_digits(string: &str) -> i32 {
+    let mut count = 0;
+    for c in string.chars() {
+        if c.is_ascii_digit() {
+            count += 1;
+        }
+    }
+    count
+}
+
+fn count_letters(string: &str) -> i32 {
+    let mut count = 0;
+    for c in string.chars() {
+        if c.is_ascii_alphabetic() {
+            count += 1;
+        }
+    }
+    count
+}
+
 #[derive(Clone)]
 struct Matcher {
     addr_type: u8,
     startswith: String,
     endswith: String,
     contains: String,
+    digits: i32,
+    letters: i32,
 }
 
 impl Matcher {
@@ -36,6 +58,12 @@ impl Matcher {
             return false;
         }
         if !candidate.ends_with(&self.endswith) {
+            return false;
+        }
+        if count_digits(candidate) < self.digits {
+            return false;
+        }
+        if count_letters(candidate) < self.letters {
             return false;
         }
         true
@@ -162,6 +190,22 @@ fn main() {
         .author("Taneli Hukkinen <hukkinj1@users.noreply.github.com>")
         .about("Polkadot/Substrate vanity address generator")
         .arg(
+            clap::Arg::with_name("digits")
+                .short("d")
+                .long("digits")
+                .value_name("INT")
+                .help("Amount of digits (0-9) that the address must contain")
+                .default_value("0"),
+        )
+        .arg(
+            clap::Arg::with_name("letters")
+                .short("l")
+                .long("letters")
+                .value_name("INT")
+                .help("Amount of letters (a-z) that the address must contain")
+                .default_value("0"),
+        )
+        .arg(
             clap::Arg::with_name("contains")
                 .short("c")
                 .long("contains")
@@ -271,11 +315,39 @@ fn main() {
         std::process::exit(1);
     }
 
+    let digit_count_str = matches.value_of("digits").unwrap();
+    let digit_count: i32 = match digit_count_str.parse() {
+        Ok(digit_count) => digit_count,
+        Err(_error) => {
+            eprintln!("Error: Digit count is not a 32-bit integer");
+            std::process::exit(1);
+        }
+    };
+    if digit_count < 0 || digit_count > 48 {
+        eprintln!("Error: Digit count must be in range [0, 48]");
+        std::process::exit(1);
+    }
+
+    let letter_count_str = matches.value_of("letters").unwrap();
+    let letter_count: i32 = match letter_count_str.parse() {
+        Ok(letter_count) => letter_count,
+        Err(_error) => {
+            eprintln!("Error: Letter count is not a 32-bit integer");
+            std::process::exit(1);
+        }
+    };
+    if letter_count < 0 || letter_count > 48 {
+        eprintln!("Error: Letter count must be in range [0, 48]");
+        std::process::exit(1);
+    }
+
     let matcher = Matcher {
         addr_type,
         startswith: String::from(matches.value_of("startswith").unwrap()),
         endswith: String::from(matches.value_of("endswith").unwrap()),
         contains: String::from(matches.value_of("contains").unwrap()),
+        digits: digit_count,
+        letters: letter_count,
     };
 
     if let Err(error) = matcher.validate() {
@@ -356,6 +428,8 @@ mod tests {
             startswith: String::from("1"),
             endswith: String::new(),
             contains: String::new(),
+            letters: 0,
+            digits: 0,
         };
         assert!(m.validate().is_ok());
     }
@@ -367,6 +441,8 @@ mod tests {
             startswith: String::from("2"),
             endswith: String::new(),
             contains: String::new(),
+            letters: 0,
+            digits: 0,
         };
         assert_eq!(
             m.validate(),
