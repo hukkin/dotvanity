@@ -44,6 +44,16 @@ Find an address containing the substring "XXXXX" (e.g. 1R6DVtPBh5ZfNHPFoHT4GVUuL
 dotvanity --contains XXXXX
 ```
 
+Find an address with at least 46 letters (e.g. 14KhqiucsPQJYfBQnYYUMTKSNUjwFdFzFGEMyjEUedCpJSFa)
+```bash
+dotvanity --letters 46
+```
+
+Find an address with at least 25 digits (e.g. 148GwY3868mW4vGvrQtq4266CK3165835N593ngW9B57HDBg)
+```bash
+dotvanity --digits 25
+```
+
 Use 5 CPU threads. The default is 1.
 ```bash
 dotvanity --cpus 5
