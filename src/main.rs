@@ -40,35 +40,35 @@ impl Matcher {
         }
         true
     }
-    fn validation_errors(&self) -> Vec<&str> {
-        let mut errs = Vec::new();
 
+    /// Validates the current configuration
+    fn validate(&self) -> Result<(), &str> {
         if !self.startswith.chars().all(is_valid_ss58_char)
             || !self.endswith.chars().all(is_valid_ss58_char)
             || !self.contains.chars().all(is_valid_ss58_char)
         {
-            errs.push("Error: A provided matcher contains SS58 incompatible characters");
+            return Err("Error: A provided matcher contains SS58 incompatible characters");
         }
 
         // Validate first char of --startswith string for some known cases
         if !self.startswith.is_empty() {
             let first_char = self.startswith.chars().next().unwrap();
             if self.addr_type == 0 && first_char != '1' {
-                errs.push(
+                return Err(
                     "Error: Polkadot mainnet address must start with '1'. Adjust --startswith",
                 );
             }
             let kusama_addr_first_chars = ['C', 'D', 'F', 'G', 'H', 'J'];
             if self.addr_type == 2 && !kusama_addr_first_chars.contains(&first_char) {
-                errs.push("Error: Kusama address must start with one of ['C', 'D', 'F', 'G', 'H', 'J']. Adjust --startswith");
+                return Err("Error: Kusama address must start with one of ['C', 'D', 'F', 'G', 'H', 'J']. Adjust --startswith");
             }
             if self.addr_type == 42 && first_char != '5' {
-                errs.push(
+                return Err(
                     "Error: Generic Substrate address must start with '5'. Adjust --startswith",
                 );
             }
         }
-        errs
+        Ok(())
     }
 }
 
@@ -278,11 +278,8 @@ fn main() {
         contains: String::from(matches.value_of("contains").unwrap()),
     };
 
-    let validation_errs = matcher.validation_errors();
-    if !validation_errs.is_empty() {
-        for err in validation_errs {
-            eprintln!("{}", err);
-        }
+    if let Err(error) = matcher.validate() {
+        eprintln!("{}", error);
         std::process::exit(1);
     }
 
@@ -361,8 +358,8 @@ mod tests {
             contains: String::new(),
         };
         assert_eq!(
-            m.validation_errors(),
-            ["Error: Polkadot mainnet address must start with '1'. Adjust --startswith"]
+            m.validate(),
+            Err("Error: Polkadot mainnet address must start with '1'. Adjust --startswith")
         );
     }
 }
