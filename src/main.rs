@@ -350,6 +350,17 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_correct_startswith_first_char() {
+        let m = Matcher {
+            addr_type: 0,
+            startswith: String::from("1"),
+            endswith: String::new(),
+            contains: String::new(),
+        };
+        assert!(m.validate().is_ok());
+    }
+
+    #[test]
     fn test_incorrect_startswith_first_char() {
         let m = Matcher {
             addr_type: 0,
