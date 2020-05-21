@@ -324,9 +324,7 @@ fn main() {
         }
 
         // Read the attempt_count channel until it's empty
-        for count in attempt_count_rx.try_iter() {
-            total_attempts += count;
-        }
+        total_attempts += attempt_count_rx.try_iter().sum::<u64>();
 
         if verbose {
             if let Ok(elapsed) = start_time.elapsed() {
