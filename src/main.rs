@@ -103,7 +103,7 @@ impl Matcher {
 struct Wallet {
     mnemonic_phrase: String,
     private_key: [u8; 32],
-    public_key: String,
+    public_key: [u8; 32],
     address: String,
 }
 
@@ -122,7 +122,7 @@ impl Wallet {
         Wallet {
             mnemonic_phrase: phrase,
             private_key: secret,
-            public_key: pair.public().to_string(),
+            public_key: <[u8; 32]>::from(pair.public()),
             address,
         }
     }
@@ -135,7 +135,7 @@ impl Wallet {
         Wallet {
             mnemonic_phrase: phrase,
             private_key: secret,
-            public_key: pair.public().to_string(),
+            public_key: <[u8; 32]>::from(pair.public()),
             address,
         }
     }
@@ -145,7 +145,7 @@ impl Wallet {
             println!("Mnemonic phrase: {}", self.mnemonic_phrase);
         }
         println!("Private key:     {}", HEXLOWER.encode(&self.private_key));
-        println!("Public key:      {}", self.public_key);
+        println!("Public key:      {}", HEXLOWER.encode(&self.public_key));
         println!("Address:         {}", self.address);
     }
 }
