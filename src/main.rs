@@ -33,8 +33,8 @@ struct Matcher {
     startswith: String,
     endswith: String,
     contains: String,
-    digits: usize,
-    letters: usize,
+    digits: Option<usize>,
+    letters: Option<usize>,
 }
 
 impl Matcher {
@@ -48,11 +48,15 @@ impl Matcher {
         if !candidate.ends_with(&self.endswith) {
             return false;
         }
-        if count_digits(candidate) < self.digits {
-            return false;
+        if let Some(digits) = self.digits {
+            if count_digits(candidate) < digits {
+                return false;
+            }
         }
-        if count_letters(candidate) < self.letters {
-            return false;
+        if let Some(letters) = self.letters {
+            if count_letters(candidate) < letters {
+                return false;
+            }
         }
         true
     }
@@ -183,7 +187,7 @@ fn main() {
                 .long("digits")
                 .value_name("INT")
                 .help("Amount of digits (0-9) that the address must contain")
-                .default_value("0"),
+                .takes_value(true),
         )
         .arg(
             clap::Arg::with_name("letters")
@@ -191,7 +195,7 @@ fn main() {
                 .long("letters")
                 .value_name("INT")
                 .help("Amount of letters (a-z) that the address must contain")
-                .default_value("0"),
+                .takes_value(true),
         )
         .arg(
             clap::Arg::with_name("contains")
@@ -303,30 +307,38 @@ fn main() {
         std::process::exit(1);
     }
 
-    let digit_count_str = matches.value_of("digits").unwrap();
-    let digit_count: usize = match digit_count_str.parse() {
-        Ok(digit_count) => digit_count,
-        Err(_error) => {
-            eprintln!("Error: Digit count is not a valid integer");
+    let digit_count = match matches.value_of("digits") {
+        None => None,
+        Some(count_str) => match count_str.parse() {
+            Ok(c) => Some(c),
+            Err(_) => {
+                eprintln!("Error: Digit count is not a valid integer");
+                std::process::exit(1);
+            }
+        },
+    };
+    if let Some(count) = digit_count {
+        if count > 48 {
+            eprintln!("Error: Digit count must be in range [0, 48]");
             std::process::exit(1);
         }
-    };
-    if digit_count > 48 {
-        eprintln!("Error: Digit count must be in range [0, 48]");
-        std::process::exit(1);
     }
 
-    let letter_count_str = matches.value_of("letters").unwrap();
-    let letter_count: usize = match letter_count_str.parse() {
-        Ok(letter_count) => letter_count,
-        Err(_error) => {
-            eprintln!("Error: Letter count is not a valid integer");
+    let letter_count = match matches.value_of("letters") {
+        None => None,
+        Some(count_str) => match count_str.parse() {
+            Ok(c) => Some(c),
+            Err(_) => {
+                eprintln!("Error: Letter count is not a valid integer");
+                std::process::exit(1);
+            }
+        },
+    };
+    if let Some(count) = letter_count {
+        if count > 48 {
+            eprintln!("Error: Letter count must be in range [0, 48]");
             std::process::exit(1);
         }
-    };
-    if letter_count > 48 {
-        eprintln!("Error: Letter count must be in range [0, 48]");
-        std::process::exit(1);
     }
 
     let matcher = Matcher {
