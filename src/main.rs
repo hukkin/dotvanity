@@ -428,8 +428,8 @@ mod tests {
             startswith: String::from("1"),
             endswith: String::new(),
             contains: String::new(),
-            letters: 0,
-            digits: 0,
+            letters: None,
+            digits: None,
         };
         assert!(m.validate().is_ok());
     }
@@ -441,8 +441,8 @@ mod tests {
             startswith: String::from("2"),
             endswith: String::new(),
             contains: String::new(),
-            letters: 0,
-            digits: 0,
+            letters: None,
+            digits: None,
         };
         assert_eq!(
             m.validate(),
