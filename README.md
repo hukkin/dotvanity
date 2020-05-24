@@ -1,5 +1,6 @@
 [![Crate](https://img.shields.io/crates/v/dotvanity.svg)](https://crates.io/crates/dotvanity)
-[![Build Status](https://travis-ci.com/hukkinj1/dotvanity.svg?branch=master)](https://travis-ci.com/hukkinj1/dotvanity)
+[![Build Status - Travis](https://travis-ci.com/hukkinj1/dotvanity.svg?branch=master)](https://travis-ci.com/hukkinj1/dotvanity)
+[![Build status- AppVeyor](https://ci.appveyor.com/api/projects/status/xgyd0s7vo2va9dh7/branch/master?svg=true)](https://ci.appveyor.com/project/hukkinj1/dotvanity/branch/master)
 # dotvanity
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
