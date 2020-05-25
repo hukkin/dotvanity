@@ -19,24 +19,12 @@ fn is_valid_ss58_char(c: char) -> bool {
     ss58_chars.contains(&c)
 }
 
-fn count_digits(string: &str) -> i32 {
-    let mut count = 0;
-    for c in string.chars() {
-        if c.is_ascii_digit() {
-            count += 1;
-        }
-    }
-    count
+fn count_digits(string: &str) -> u32 {
+    string.chars().filter(|c| c.is_ascii_digit()).count() as u32
 }
 
-fn count_letters(string: &str) -> i32 {
-    let mut count = 0;
-    for c in string.chars() {
-        if c.is_ascii_alphabetic() {
-            count += 1;
-        }
-    }
-    count
+fn count_letters(string: &str) -> u32 {
+    string.chars().filter(|c| c.is_ascii_alphabetic()).count() as u32
 }
 
 #[derive(Clone)]
@@ -45,8 +33,8 @@ struct Matcher {
     startswith: String,
     endswith: String,
     contains: String,
-    digits: i32,
-    letters: i32,
+    digits: u32,
+    letters: u32,
 }
 
 impl Matcher {
@@ -60,10 +48,10 @@ impl Matcher {
         if !candidate.ends_with(&self.endswith) {
             return false;
         }
-        if count_digits(candidate) < self.digits {
+        if self.digits > 0 && count_digits(candidate) < self.digits {
             return false;
         }
-        if count_letters(candidate) < self.letters {
+        if self.letters > 0 && count_letters(candidate) < self.letters {
             return false;
         }
         true
@@ -316,27 +304,27 @@ fn main() {
     }
 
     let digit_count_str = matches.value_of("digits").unwrap();
-    let digit_count: i32 = match digit_count_str.parse() {
+    let digit_count: u32 = match digit_count_str.parse() {
         Ok(digit_count) => digit_count,
         Err(_error) => {
-            eprintln!("Error: Digit count is not a 32-bit integer");
+            eprintln!("Error: Digit count is not a valid integer");
             std::process::exit(1);
         }
     };
-    if digit_count < 0 || digit_count > 48 {
+    if digit_count > 48 {
         eprintln!("Error: Digit count must be in range [0, 48]");
         std::process::exit(1);
     }
 
     let letter_count_str = matches.value_of("letters").unwrap();
-    let letter_count: i32 = match letter_count_str.parse() {
+    let letter_count: u32 = match letter_count_str.parse() {
         Ok(letter_count) => letter_count,
         Err(_error) => {
-            eprintln!("Error: Letter count is not a 32-bit integer");
+            eprintln!("Error: Letter count is not a valid integer");
             std::process::exit(1);
         }
     };
-    if letter_count < 0 || letter_count > 48 {
+    if letter_count > 48 {
         eprintln!("Error: Letter count must be in range [0, 48]");
         std::process::exit(1);
     }
