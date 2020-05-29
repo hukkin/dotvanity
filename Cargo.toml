@@ -12,6 +12,6 @@ keywords = ["cli", "polkadot", "substrate"]
 categories = ["command-line-utilities", "cryptography::cryptocurrencies"]
 
 [dependencies]
-data-encoding = "^2.2.0"
-sp-core = "^2.0.0-alpha.8"
+data-encoding = "^2.2.1"
+sp-core = "^2.0.0-rc2"
 clap = "^2.33.1"
