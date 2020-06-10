@@ -90,7 +90,7 @@ impl Matcher {
 
 struct Wallet {
     mnemonic_phrase: String,
-    private_key: [u8; 32],
+    mini_secret_key: [u8; 32],
     public_key: [u8; 32],
     address: String,
 }
@@ -109,7 +109,7 @@ impl Wallet {
             .to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
         Wallet {
             mnemonic_phrase: phrase,
-            private_key: secret,
+            mini_secret_key: secret,
             public_key: <[u8; 32]>::from(pair.public()),
             address,
         }
@@ -122,7 +122,7 @@ impl Wallet {
             .to_ss58check_with_version(Ss58AddressFormat::Custom(addr_format));
         Wallet {
             mnemonic_phrase: phrase,
-            private_key: secret,
+            mini_secret_key: secret,
             public_key: <[u8; 32]>::from(pair.public()),
             address,
         }
@@ -132,7 +132,7 @@ impl Wallet {
         if !self.mnemonic_phrase.is_empty() {
             println!("Mnemonic phrase: {}", self.mnemonic_phrase);
         }
-        println!("Private key:     {}", HEXLOWER.encode(&self.private_key));
+        println!("Mini secret key: {}", HEXLOWER.encode(&self.mini_secret_key));
         println!("Public key:      {}", HEXLOWER.encode(&self.public_key));
         println!("Address:         {}", self.address);
     }
