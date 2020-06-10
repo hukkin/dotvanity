@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "dotvanity"
-version = "0.2.7"
+version = "1.0.0"
 dependencies = [
  "clap",
  "data-encoding",

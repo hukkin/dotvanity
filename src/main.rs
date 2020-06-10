@@ -177,7 +177,7 @@ fn generate_matching_wallet(
 
 fn main() {
     let matches = clap::App::new("dotvanity")
-        .version("0.2.7")  // DO NOT EDIT THIS LINE MANUALLY
+        .version("1.0.0")  // DO NOT EDIT THIS LINE MANUALLY
         .author("Taneli Hukkinen <hukkinj1@users.noreply.github.com>")
         .about("Polkadot/Substrate vanity address generator")
         .arg(

@@ -4,7 +4,7 @@
 # dotvanity
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
-> Version 0.2.7
+> Version 1.0.0
 
 > CLI tool for generating [Substrate](https://substrate.dev/) (or [Polkadot](https://polkadot.network/)) vanity addresses
 
