@@ -376,7 +376,10 @@ fn main() {
         match rx.recv_timeout(Duration::from_secs(3)) {
             Ok(matching_wallet) => {
                 matches_found += 1;
-                println!(":::: Matching wallet found ::::");
+                println!(
+                    ":::: Matching wallet {}/{} found ::::",
+                    matches_found, wallet_count
+                );
                 matching_wallet.pretty_print();
             }
             Err(RecvTimeoutError::Disconnected) => panic!("wallet tx disconnected"),
