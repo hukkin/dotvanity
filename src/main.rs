@@ -132,7 +132,10 @@ impl Wallet {
         if !self.mnemonic_phrase.is_empty() {
             println!("Mnemonic phrase: {}", self.mnemonic_phrase);
         }
-        println!("Mini secret key: {}", HEXLOWER.encode(&self.mini_secret_key));
+        println!(
+            "Mini secret key: {}",
+            HEXLOWER.encode(&self.mini_secret_key)
+        );
         println!("Public key:      {}", HEXLOWER.encode(&self.public_key));
         println!("Address:         {}", self.address);
     }
