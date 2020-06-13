@@ -10,7 +10,7 @@
 
 
 ## Features
-* Generate SS58 encoded vanity addresses
+* Generate SS58 encoded vanity addresses using sr25519 keypairs
 * Support address types 0 to 127 (includes Polkadot, Kusama, generic Substrate etc.). Defaults to Polkadot mainnet (address type 0).
 * Specify number of CPU cores used
 * Specify a substring that the addresses must
